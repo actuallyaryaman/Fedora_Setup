@@ -1,23 +1,21 @@
-## Arch Linux Setup Script
+## Fedora Linux Setup Script
 
-> ⚠️ **Important:** This script is intended for **Arch Linux** only. Package management for other Linux distributions is not supported at this time.
+> ⚠️ **Important:** This script is intended for **Fedora** only. Package management for other Linux distributions is not supported.
 
 This script was made for my personal system management, but feel free to use or adapt it!
 
-A simple, menu-driven Bash script for managing and enhancing your Arch Linux installation.
+A simple, menu-driven Bash script for managing and enhancing your Fedora Linux installation.
 
 ### **Features**
 
 | Option | Action |
 | :-- | :-- |
 | **Update system** | Updates all system packages using pacman |
-| **Install yay-bin** | Installs the AUR helper `yay` |
 | **Install packages** | Installs user-specified packages via pacman or yay |
 | **Restore saved packages** | Installs all packages listed in `pkglist.txt` |
 | **Export package list** | Saves a list of all explicitly installed packages to `pkglist.txt` |
 | **Change shell** | Switches between various shells |
 | **Add aliases** | Adds custom command aliases to your shell configuration |
-| **Fix plasma-meta** | Repairs KDE Plasma dependencies |
 | **Set battery limit** | Sets and persists battery charging threshold (for supported hardware) |
 | **Configure Git** | Sets global Git username and email |
 | **Install ZimFW** | Installs and configures the Zsh framework [ZimFW](https://zimfw.sh) |
@@ -32,10 +30,10 @@ A simple, menu-driven Bash script for managing and enhancing your Arch Linux ins
 #### **1. Download \& Run**
 
 ```bash
-git clone https://github.com/actuallyaryaman/Arch_Setup
-cd Arch_Setup
-chmod +x arch-setup.sh
-./arch-setup.sh
+git clone https://github.com/actuallyaryaman/Fedora_Setup
+cd Fedora_Setup
+chmod +x fedora-setup.sh
+./fedora-setup.sh
 ```
 
 
@@ -64,4 +62,4 @@ DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE (see LICENSE file for details)
 
 **For any issues or suggestions, open an issue or pull request on GitHub.**
 
-*This script is developed with Arch Linux users in mind.*
+*This script is developed with Fedora Linux users in mind.*
