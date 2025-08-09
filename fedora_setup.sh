@@ -202,6 +202,26 @@ install_zimfw_online() {
     show_menu
 }
 
+install_rpmfusion_ffmpeg() {
+    # Detect Fedora version
+    local fedora_ver
+    fedora_ver=$(rpm -E %fedora)
+
+    echo "🔹 Installing RPM Fusion Free Repo for Fedora $fedora_ver..."
+    sudo dnf install -y \
+        "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm"
+
+    echo "🔹 Installing RPM Fusion Nonfree Repo for Fedora $fedora_ver..."
+    sudo dnf install -y \
+        "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm"
+
+    echo "🔹 Swapping ffmpeg-free with ffmpeg..."
+    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+
+    echo "Done: RPM Fusion installed and ffmpeg ready."
+}
+
+
 organize_downloads() {
     local SCRIPT_NAME="organize_downloads"
     local SCRIPT_SOURCE="$SCRIPT_DIR/scripts/download_organizer.sh"
@@ -251,57 +271,16 @@ add_shell_alias() {
     show_menu
 }
 
-configure_parallel_downloads() {
-  echo "Enter the number of parallel downloads to set (1 to 20, recommended 10): "
-  read -r max_downloads
-
-  # Validate input
-  if ! [[ "$max_downloads" =~ ^[0-9]+$ ]] || [ "$max_downloads" -lt 1 ] || [ "$max_downloads" -gt 20 ]; then
-    echo "Invalid input. Please enter a number between 1 and 20."
-    return 1
-  fi
-
+copy_dnf_config() {
+  
   # Backup dnf.conf before editing
   cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
 
-  # Check if max_parallel_downloads already exists
-  if grep -q "^max_parallel_downloads" /etc/dnf/dnf.conf; then
-    # Replace the existing value
-    sed -i "s/^max_parallel_downloads=.*/max_parallel_downloads=$max_downloads/" /etc/dnf/dnf.conf
-  else
-    # Add the setting to the file
-    echo "max_parallel_downloads=$max_downloads" >> /etc/dnf/dnf.conf
-  fi
+  cp etc/dnf.conf /etc/dnf/dnf.conf
 
-  echo "max_parallel_downloads is set to $max_downloads in /etc/dnf/dnf.conf"
-}
-
-
-add_script_to_path() {
-    local SCRIPT_PATH SCRIPT_NAME SYMLINK_TARGET SHELL_NAME RC_FILE
-    SCRIPT_PATH="$(realpath "$0")"
-    SCRIPT_NAME="$(basename "$SCRIPT_PATH")"
-    SYMLINK_TARGET="$HOME/.local/bin/$SCRIPT_NAME"
-    SHELL_NAME="$(basename "$SHELL")"
-    mkdir -p "$HOME/.local/bin"
-    [ -e "$SYMLINK_TARGET" ] && rm -f "$SYMLINK_TARGET"
-    ln -s "$SCRIPT_PATH" "$SYMLINK_TARGET"
-    chmod +x "$SCRIPT_PATH"
-    echo "Symlinked $SCRIPT_PATH to $SYMLINK_TARGET"
-    if [[ "$SHELL_NAME" == "zsh" ]]; then
-        RC_FILE="$HOME/.zshrc"
-    else
-        RC_FILE="$HOME/.bashrc"
-    fi
-    if ! grep -q 'export PATH=.*$HOME/.local/bin' "$RC_FILE"; then
-        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$RC_FILE"
-        echo "Added ~/.local/bin to PATH in $RC_FILE"
-    else
-        echo "~/.local/bin is already in PATH in $RC_FILE"
-    fi
-    echo "To apply changes, run: source $RC_FILE"
-    sleep 3
-    show_menu
+  dnf upgrade
+  
+  echo "Dnf config restored to /etc/dnf/dnf.conf"
 }
 
 move_config_to_home() {
@@ -338,8 +317,7 @@ show_menu() {
     echo "======================="
 
     local options=()
-    options+=("Add this script to your PATH (symlink):add_script_to_path")
-    options+=("Configure parallel downloads:configure_parallel_downloads")
+    options+=("Copy DNF config:copy_dnf_config")
     options+=("Update system:update_system")
 
     options+=("Install packages:install_packages")
@@ -347,6 +325,7 @@ show_menu() {
         options+=("Install packages from saved list:reinstall_from_exported_list")
     fi
 
+    options+=("Install non-free drivers from rpm-fusion")
     options+=("Copy config files:move_config_to_home")
     options+=("Change default shell:change_shell")
     options+=("Add aliases:add_shell_alias")
