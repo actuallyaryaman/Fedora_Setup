@@ -8,6 +8,8 @@ if ! command -v dnf &>/dev/null; then
     sleep 5
 fi
 
+desktop_file="$HOME/.local/share/applications/mpv-hdr.desktop"
+
 
 PACKAGE_LIST_FILE="$(pwd)/pkglist.txt"
 # Get the directory of the script
@@ -308,6 +310,25 @@ move_config_to_home() {
     show_menu
 }
 
+mpv_hdr() {
+    mkdir -p "$HOME/.local/share/applications"
+    cat > "$desktop_file" <<EOF
+[Desktop Entry]
+Name=mpv hdr
+Comment=Play HDR videos with MPV and Wayland HDR support
+Exec=mpv --vo=gpu-next --target-colorspace-hint --gpu-api=vulkan --gpu-context=waylandvk %f
+Terminal=false
+Type=Application
+MimeType=video/mp4;video/x-matroska;video/webm;video/x-msvideo;video/avi;
+Icon=mpv
+Categories=AudioVideo;Player;Video;
+EOF
+
+    update-desktop-database "$HOME/.local/share/applications/"
+
+    echo "mpv-hdr desktop entry created at: $desktop_file"
+}
+
 
 # ----- MENU -----
 
@@ -329,9 +350,9 @@ show_menu() {
     options+=("Copy config files:move_config_to_home")
     options+=("Change default shell:change_shell")
     options+=("Add aliases:add_shell_alias")
-
-    if [[ "$USER_SHELL" == */zsh && ! -f "$HOME/.zimrc" ]]; then
-        options+=("Install ZimFW:install_zimfw_online")
+    
+    if [ ! -f "$desktop_file" ]; then
+    options+=("Create mpv-hdr entry:mpv_hdr")
     fi
 
     options+=("Set battery charging threshold (Default 80%):set_battery_threshold")
